@@ -47,7 +47,7 @@ describe('Process Secret', function() {
       ]
     }
     await processSecrets(secretValue, secretConfig);
-    const testFileContents = fs.readFile(TEST_FILE_SECRET, 'utf8');
+    const testFileContents = await fs.readFile(TEST_FILE_SECRET, 'utf8');
     expect(testFileContents).toEqual('MY SECRET FILE TEXT');
   });
 });

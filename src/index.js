@@ -65,9 +65,7 @@ async function processSecret(secretName, secretValue, target, targetValue) {
     let filePath = targetValue;
     logger.log(`Saving ${secretName} into file ${filePath}`);
     filePath = path.parse(filePath);
-    if (filePath.length > 1) {
-      await fs.mkdir(filePath.dir, { recursive: true });
-    }
+    await fs.mkdir(filePath.dir, { recursive: true });
     await fs.writeFile(targetValue, secretValue);
   } else if (target === 'env') {
     logger.log(`Saving ${secretName} into environment variable ${targetValue}`);

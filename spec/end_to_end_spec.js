@@ -15,11 +15,14 @@ describe('End to End Test', function() {
     getSecretFromSecretManagerStub = sinon.stub(getSecretFromSecretManager, 'getSecretFromSecretManager');
   });
 
-  beforeEach(function() {
+  beforeEach(async function() {
     delete process.env.SECRET_KEY1_ENV;
     delete process.env.SECRET_KEY2_ENV;
-    if (fs.exists(CERT_FILE)) {
-      fs.unlink(CERT_FILE);
+
+    try {
+      await fs.unlink(CERT_FILE);
+    } catch (err) {
+      // Ignore
     }
   });
 
@@ -37,7 +40,7 @@ describe('End to End Test', function() {
     await mystiko({ env: 'test', configFile: './spec/fixtures/.mystiko_end_to_end.json'});
     expect(process.env.SECRET_KEY1_ENV).toEqual(EXPECTED_SECRET1_VALUE);
     expect(process.env.SECRET_KEY2_ENV).toEqual(EXPECTED_SECRET2_VALUE);
-    const crt = fs.readFile(CERT_FILE, 'utf8');
+    const crt = await fs.readFile(CERT_FILE, 'utf8');
     expect(crt).toEqual(EXPECTED_SECRET3_VALUE);
   });
 
