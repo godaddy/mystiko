@@ -1,0 +1,26 @@
+{
+  "environments": {
+    "dev": {
+      "region": "us-west-2",
+      "secrets": [
+        {
+          "name": "KEY_VALUE_SECRET1",
+          "keyValues": [
+            { "key": "SECRET_KEY1", "target": "env", "envname": "SECRET_KEY1_ENV" },
+            { "key": "SECRET_KEY3", "target": "file", "filename": "./test_gen_files/cert.crt" }
+          ]
+        },
+        {
+          "name": "test_name",
+          "target": "env",
+          "envname": "test_env_name"
+        },
+        {
+          "name": "test_name2",
+          "target": "file",
+          "filename": "test_file_name"
+        }
+      ]
+    }
+  }
+}

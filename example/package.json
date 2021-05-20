@@ -1,0 +1,15 @@
+{
+  "name": "mystiko-example",
+  "version": "1.0.0",
+  "description": "Simple example of how to use mystiko",
+  "main": "./index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "GoDaddy Operating Company, LLC",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mystiko": "file:../"
+  }
+}

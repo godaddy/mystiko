@@ -1,0 +1,38 @@
+{
+  "name": "mystiko",
+  "version": "0.2.0",
+  "description": "Allows to store all secrets in AWS Secrets Manager and read them locally in different ways",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "eslint --fix -c .eslintrc.js . && nyc jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/godaddy/mystiko.git"
+  },
+  "maintainers": [
+    "Oleg Gomozov <oleg@godaddy.com>",
+    "Shawn Mccarthy <smccarthy@godaddy.com>"
+  ],
+  "author": "GoDaddy Operating Company, LLC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/godaddy/mystiko/issues"
+  },
+  "homepage": "https://github.com/godaddy/mystiko#readme",
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.8.0",
+    "ajv": "^6.12.6",
+    "chalk": "^4.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.19.0",
+    "jasmine": "^3.7.0",
+    "nyc": "^15.1.0",
+    "rewire": "^5.0.0",
+    "sinon": "^10.0.0"
+  },
+  "nyc": {
+    "exclude": "spec/*"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "environments": {
+    "test": {
+      "region": "me-south-1",
+      "secrets": [
+        {
+          "name": "KEY_VALUE_SECRET1",
+          "target": "envv",
+          "envname": "SECRET_KEY1_ENV"
+        }
+      ]
+    }
+  }
+}
