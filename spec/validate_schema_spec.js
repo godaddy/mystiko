@@ -8,4 +8,9 @@ describe('Validate Schema', function() {
     const config = await fs.readFile('./spec/fixtures/.mystiko_schema_validation.json', 'utf8');
     validateSchema(JSON.parse(config));
   });
+
+  it('should validate the schema is correct without target', async function() {
+    const config = await fs.readFile('./spec/fixtures/.mystiko_schema_validation_no_target.json', 'utf8');
+    validateSchema(JSON.parse(config));
+  });
 });

@@ -32,10 +32,9 @@ module.exports = async function ({ env, configFile = '.mystiko.json' }) {
 }
 
 function getTargetValue(secretConfig = {}) {
-  const { target } = secretConfig;
-  if (target === 'file') {
+  if ('filename' in secretConfig) {
     return secretConfig.filename;
-  } else if (target === 'env') {
+  } else if ('envname' in secretConfig) {
     return secretConfig.envname;
   } else {
     const errorMsg = `Unknown type of target: ${target} in ${JSON.stringify(secretConfig)}`;
@@ -44,19 +43,33 @@ function getTargetValue(secretConfig = {}) {
   }
 }
 
+function getTargetFromTargetValueKey(secretConfig = {}) {
+  if ('filename' in secretConfig) {
+    return 'file';
+  } else if ('envname' in secretConfig) {
+    return 'env';
+  } else {
+    const errorMsg = `Missing envname or filename from secret ${JSON.stringify(secretConfig)}`;
+    logger.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+}
+
 async function processSecrets(secretValue, secretConfig) {
   if ('keyValues' in secretConfig) {
-    secrets = secretConfig['keyValues'];
+    const secrets = secretConfig['keyValues'];
     secretValue = safelyParseSecretString(secretValue);
     for (const secret of secrets) {
       if (!(secret.key in secretValue)) {
-        errorMsg = `${secret.key} is not a key in the ASM secret ${secretConfig.name}`;
+        const errorMsg = `${secret.key} is not a key in the ASM secret ${secretConfig.name}`;
         throw new Error(errorMsg);
       }
-      await processSecret(secret.key, secretValue[secret.key], secret.target, getTargetValue(secret));
+      const target = getTargetFromTargetValueKey(secret);
+      await processSecret(secret.key, secretValue[secret.key], target, getTargetValue(secret));
     }
   } else {
-    await processSecret(secretConfig.name, secretValue, secretConfig.target, getTargetValue(secretConfig));
+    const target = getTargetFromTargetValueKey(secretConfig);
+    await processSecret(secretConfig.name, secretValue, target, getTargetValue(secretConfig));
   }
 }
 
@@ -71,7 +84,7 @@ async function processSecret(secretName, secretValue, target, targetValue) {
     logger.log(`Saving ${secretName} into environment variable ${targetValue}`);
     process.env[targetValue] = secretValue;
   } else {
-    errorMsg = `No logic to support target ${target} for ${secretName}`;
+    const errorMsg = `No logic to support target ${target} for ${secretName}`;
     logger.error(errorMsg);
     throw new Error(errorMsg);
   }
@@ -140,27 +153,31 @@ function validateSchema (config) {
     type: 'object',
     properties: {
       key: {type: 'string'},
-      target: {type: 'string', pattern: '^(file|env)$'},
+      target: {type: 'string', enum: ['env', 'file']},
       filename: {type: 'string'},
       envname: {type: 'string'}
     },
     anyOf: [
       {
-        required: ['key', 'target', 'filename'],
+        required: ['key', 'filename'],
         not: { required: ['envname'] }
       },
       {
-        required: ['key', 'target', 'envname'],
+        required: ['key', 'envname'],
         not: { required: ['filename'] }
       }
     ],
-    if: {properties: {target:{const: 'env'}}},
-    then: {required: ['envname']},
-    else: {
-      if: {properties: {target:{const: 'file'}}},
-      then: {required: ['filename']},
+    dependencies: {
+      target: {
+        if: {properties: {target:{const: 'env'}}},
+        then: {required: ['envname']},
+        else: {
+          if: {properties: {target:{const: 'file'}}},
+          then: {required: ['filename']},
+        }
+      }
     },
-    required: ['key', 'target'],
+    required: ['key'],
     additionalProperties: false
   };
 
@@ -173,18 +190,18 @@ function validateSchema (config) {
     type: 'object',
     properties: {
       name: {type: 'string'},
-      target: {type: 'string', pattern: '^(file|env)$'},
+      target: {type: 'string', enum: ['env', 'file']},
       filename: {type: 'string'},
       envname: {type: 'string'},
       keyValues: keyValuesArraySchema
     },
     anyOf: [
       {
-        required: ['name', 'target', 'filename'],
+        required: ['name', 'filename'],
         not: {required: ['envname']}
       },
       {
-        required: ['name', 'target', 'envname'],
+        required: ['name', 'envname'],
         not: {required: ['filename']}
       },
       {

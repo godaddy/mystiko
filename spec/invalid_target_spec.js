@@ -7,7 +7,7 @@ describe('Invalid Target', function() {
       await mystiko({ env: 'test', configFile: './spec/fixtures/.mystiko_invalid_target.json'});
       passed = true;
     } catch (e) {
-      const expectedErrorMessage = `should match pattern \\"^(file|env)$\\"`;
+      const expectedErrorMessage = `Schema validation failed`;
       expect(e.message).toContain(expectedErrorMessage);
     }
     expect(passed).toEqual(false);
