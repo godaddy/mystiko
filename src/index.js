@@ -5,6 +5,28 @@ const TARGETS = [ 'file', 'env' ];
 const Ajv = require('ajv')
 const path = require('path');
 
+
+class MystikoError extends Error {
+  constructor (message) {
+    super(message);
+    this.name = this.constructor.name
+  }
+}
+
+class SchemaValidationError extends Error {
+  constructor (message) {
+    super(message);
+    this.name = this.constructor.name
+  }
+}
+
+class ConfigError extends Error {
+  constructor (message) {
+    super(message);
+    this.name = this.constructor.name
+  }
+}
+
 const errorMessages = {
   DecryptionFailureException: 'Secrets Manager can\'t decrypt the protected secret text using the provided KMS key',
   AccessDeniedException: 'Access denied to current user',
@@ -23,7 +45,7 @@ module.exports = async function ({ env, configFile = '.mystiko.json' }) {
     if (!TARGETS.includes(target) && target) {
       const errorMsg = `Secret ${name} is not processed, because its target ${target} is not supported. ` +
       `Supported:${TARGETS.join(',')}`;
-      throw new Error(errorMsg);
+      throw new MystikoError(errorMsg);
     }
     
     const secretValue = await readValue(name, region);
@@ -39,7 +61,7 @@ function getTargetValue(secretConfig = {}) {
   } else {
     const errorMsg = `Unknown type of target: ${target} in ${JSON.stringify(secretConfig)}`;
     logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new MystikoError(errorMsg);
   }
 }
 
@@ -51,7 +73,7 @@ function getTargetFromTargetValueKey(secretConfig = {}) {
   } else {
     const errorMsg = `Missing envname or filename from secret ${JSON.stringify(secretConfig)}`;
     logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new MystikoError(errorMsg);
   }
 }
 
@@ -62,7 +84,7 @@ async function processSecrets(secretValue, secretConfig) {
     for (const secret of secrets) {
       if (!(secret.key in secretValue)) {
         const errorMsg = `${secret.key} is not a key in the ASM secret ${secretConfig.name}`;
-        throw new Error(errorMsg);
+        throw new MystikoError(errorMsg);
       }
       const target = getTargetFromTargetValueKey(secret);
       await processSecret(secret.key, secretValue[secret.key], target, getTargetValue(secret));
@@ -86,7 +108,7 @@ async function processSecret(secretName, secretValue, target, targetValue) {
   } else {
     const errorMsg = `No logic to support target ${target} for ${secretName}`;
     logger.error(errorMsg);
-    throw new Error(errorMsg);
+    throw new MystikoError(errorMsg);
   }
 }
 
@@ -134,7 +156,7 @@ async function readConfigFile (env, configFile) {
     config = data.environments[env];
     return config;
   } catch (err) {
-    throw new Error(`Unable to parse ${configFile}\n` + err.toString());
+    throw new ConfigError(`Unable to parse ${configFile}\n` + err.toString());
   }
 }
 
@@ -259,5 +281,7 @@ function validateSchema (config) {
   const validate = ajv.compile(topLevelSchema);
   const valid = validate(config);
 
-  if (!valid) throw new Error(`Schema validation failed. Errors: ${JSON.stringify(validate.errors, null, 2)}`);
+  if (!valid) {
+    throw new SchemaValidationError(`Schema validation failed. Errors: ${JSON.stringify(validate.errors, null, 2)}`);
+  }
 }
