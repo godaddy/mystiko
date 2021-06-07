@@ -50,4 +50,11 @@ describe('Process Secret', function() {
     const testFileContents = await fs.readFile(TEST_FILE_SECRET, 'utf8');
     expect(testFileContents).toEqual('MY SECRET FILE TEXT');
   });
+
+  it('should be able to set a plain text secret as an environment variable', async function() {
+    const secretConfig = { 'name': 'ASM_SECRET_NAME2', 'envname': 'PLAIN_TEXT_SECRET' };
+    const secretValue = 'secret value';
+    await processSecrets(secretValue, secretConfig);
+    expect(process.env.PLAIN_TEXT_SECRET).toBe(secretValue);
+  });
 });
