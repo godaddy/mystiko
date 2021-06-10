@@ -147,8 +147,11 @@ function parseSecret (data) {
   }
 }
 
-function updateSecretNames(config) {
-  const { secretNamePrefix, ignoreSecretNamePrefix = [], secrets = []} = config;
+function combineEnvironmentWithDefaults(config, defaults = {secrets: []}) {
+  const { secretNamePrefix, ignoreSecretNamePrefix = []} = defaults;
+  const secrets = [...config['secrets'], ...defaults['secrets']];
+
+  config['secrets'] = secrets;
   for (secret of secrets) {
     const name = secret['name'];
     // If secret name does not include the ignore list, add the prefix
@@ -166,8 +169,7 @@ async function readConfigFile (env, configFile) {
   let config;
   try {
     config = data.environments[env];
-    const newConfig = Object.assign({}, config, data['defaults']);
-    return updateSecretNames(newConfig);
+    return combineEnvironmentWithDefaults(config, data['defaults']);
   } catch (err) {
     throw new ConfigError(`Unable to parse ${configFile}\n` + err.toString());
   }

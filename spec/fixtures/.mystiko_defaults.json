@@ -3,6 +3,18 @@
     "secretNamePrefix": "/App/HelloWorld/",
     "ignoreSecretNamePrefix": [
       "/Shared/"
+    ],
+    "secrets": [
+      {
+        "name": "DEFAULT_ADD_PREFIX",
+        "target": "env",
+        "envname": "DEFAULT_SECRET_ENV"
+      },
+      {
+        "name": "/Shared/DEFAULT_IGNORE_PREFIX",
+        "target": "env",
+        "envname": "DEFAULT_SECRET_ENV2"
+      }
     ]
   },
   "environments": {

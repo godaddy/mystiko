@@ -38,10 +38,6 @@ describe('Read Config File', function() {
   it('should be able to read the config and combine the defaults to the environment', async function() {
     const config = await readConfigFile('local', './spec/fixtures/.mystiko_defaults.json');
     const expected_config = {
-      'secretNamePrefix': '/App/HelloWorld/',
-      'ignoreSecretNamePrefix': [
-        '/Shared/'
-      ],
       'region': 'us-west-2',
       'secrets': [
         {
@@ -58,6 +54,16 @@ describe('Read Config File', function() {
           'name': '/Shared/essp',
           'target': 'env',
           'envname': 'ESSP_ENV_VARIABLE'
+        },
+        {
+          'name': '/App/HelloWorld/DEFAULT_ADD_PREFIX',
+          'target': 'env',
+          'envname': 'DEFAULT_SECRET_ENV'
+        },
+        {
+          'name': '/Shared/DEFAULT_IGNORE_PREFIX',
+          'target': 'env',
+          'envname': 'DEFAULT_SECRET_ENV2'
         }
       ]
     };
