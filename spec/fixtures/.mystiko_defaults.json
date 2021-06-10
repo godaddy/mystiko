@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "secretNamePrefix": "/App/HelloWorld/",
+    "ignoreSecretNamePrefix": [
+      "/Shared/"
+    ]
+  },
+  "environments": {
+    "local": {
+      "region": "us-west-2",
+      "secrets": [
+        {
+          "name": "local_cert.key",
+          "target": "file",
+          "filename": "./certs/local_cert.key"
+        },
+        {
+          "name": "local_cert.crt",
+          "target": "file",
+          "filename": "./certs/local_cert.crt"
+        },
+        {
+          "name": "/Shared/essp",
+          "target": "env",
+          "envname": "ESSP_ENV_VARIABLE"
+        }
+      ]
+    }
+  }
+}

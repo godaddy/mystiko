@@ -34,4 +34,33 @@ describe('Read Config File', function() {
     };
     expect(config).toEqual(expected_config);
   });
+
+  it('should be able to read the config and combine the defaults to the environment', async function() {
+    const config = await readConfigFile('local', './spec/fixtures/.mystiko_defaults.json');
+    const expected_config = {
+      'secretNamePrefix': '/App/HelloWorld/',
+      'ignoreSecretNamePrefix': [
+        '/Shared/'
+      ],
+      'region': 'us-west-2',
+      'secrets': [
+        {
+          'name': 'local_cert.key',
+          'target': 'file',
+          'filename': './certs/local_cert.key'
+        },
+        {
+          'name': 'local_cert.crt',
+          'target': 'file',
+          'filename': './certs/local_cert.crt'
+        },
+        {
+          'name': '/Shared/essp',
+          'target': 'env',
+          'envname': 'ESSP_ENV_VARIABLE'
+        }
+      ]
+    };
+    expect(config).toEqual(expected_config);
+  });
 });

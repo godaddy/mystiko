@@ -39,15 +39,20 @@ const errorMessages = {
 
 module.exports = async function ({ env, configFile = '.mystiko.json' }) {
   const config = await readConfigFile(env, configFile);
-  const { region, secrets = []} = config;
+  const { region, secretNamePrefix, ignoreSecretNamePrefix = [], secrets = []} = config;
   return await Promise.all(secrets.map(async (secretConfig) => {
-    const { name, target } = secretConfig;
+    const { target } = secretConfig;
+    let { name } = secretConfig;
+    // If secret name does not include the ignore list, add the prefix
+    if (!ignoreSecretNamePrefix.some(v => name.includes(v))) {
+      name = `${secretNamePrefix}${name}`;
+    }
     if (!TARGETS.includes(target) && target) {
       const errorMsg = `Secret ${name} is not processed, because its target ${target} is not supported. ` +
       `Supported:${TARGETS.join(',')}`;
       throw new MystikoError(errorMsg);
     }
-    
+
     const secretValue = await readValue(name, region);
     if (secretValue) await processSecrets(secretValue, secretConfig);
   }));
@@ -154,7 +159,7 @@ async function readConfigFile (env, configFile) {
   let config;
   try {
     config = data.environments[env];
-    return config;
+    return Object.assign({}, config, data['defaults']);
   } catch (err) {
     throw new ConfigError(`Unable to parse ${configFile}\n` + err.toString());
   }
@@ -260,6 +265,17 @@ function validateSchema (config) {
     additionalProperties: false
   };
 
+  const defaultsObjectSchema = {
+    type: 'object',
+    properties: {
+      secretNamePrefix: {type: 'string'},
+      ignoreSecretNamePrefix: {type: 'array'},
+      region: {type: 'string'},
+      secrets: secretsArraySchema
+    },
+    additionalProperties: false
+  };
+
   const environmentsObjectSchema = {
     type: 'object',
     patternProperties: {
@@ -272,6 +288,7 @@ function validateSchema (config) {
   const topLevelSchema = {
     type: 'object',
     properties: {
+      defaults: defaultsObjectSchema,
       environments: environmentsObjectSchema
     },
     required: ['environments'],
