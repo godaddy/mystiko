@@ -45,12 +45,12 @@ describe('Read Config File', function() {
       'region': 'us-west-2',
       'secrets': [
         {
-          'name': 'local_cert.key',
+          'name': '/App/HelloWorld/local_cert.key',
           'target': 'file',
           'filename': './certs/local_cert.key'
         },
         {
-          'name': 'local_cert.crt',
+          'name': '/App/HelloWorld/local_cert.crt',
           'target': 'file',
           'filename': './certs/local_cert.crt'
         },

@@ -39,14 +39,9 @@ const errorMessages = {
 
 module.exports = async function ({ env, configFile = '.mystiko.json' }) {
   const config = await readConfigFile(env, configFile);
-  const { region, secretNamePrefix, ignoreSecretNamePrefix = [], secrets = []} = config;
+  const { region, secrets = []} = config;
   return await Promise.all(secrets.map(async (secretConfig) => {
-    const { target } = secretConfig;
-    let { name } = secretConfig;
-    // If secret name does not include the ignore list, add the prefix
-    if (!ignoreSecretNamePrefix.some(v => name.includes(v))) {
-      name = `${secretNamePrefix}${name}`;
-    }
+    const { name, target } = secretConfig;
     if (!TARGETS.includes(target) && target) {
       const errorMsg = `Secret ${name} is not processed, because its target ${target} is not supported. ` +
       `Supported:${TARGETS.join(',')}`;
@@ -152,6 +147,18 @@ function parseSecret (data) {
   }
 }
 
+function updateSecretNames(config) {
+  const { secretNamePrefix, ignoreSecretNamePrefix = [], secrets = []} = config;
+  for (secret of secrets) {
+    const name = secret['name'];
+    // If secret name does not include the ignore list, add the prefix
+    if (secretNamePrefix && !ignoreSecretNamePrefix.some(v => name.includes(v))) {
+      secret['name'] = `${secretNamePrefix}${name}`;
+    }
+  }
+  return config;
+}
+
 async function readConfigFile (env, configFile) {
   let data = await fs.readFile(configFile, 'utf8');
   data = JSON.parse(data);
@@ -159,7 +166,8 @@ async function readConfigFile (env, configFile) {
   let config;
   try {
     config = data.environments[env];
-    return Object.assign({}, config, data['defaults']);
+    const newConfig = Object.assign({}, config, data['defaults']);
+    return updateSecretNames(newConfig);
   } catch (err) {
     throw new ConfigError(`Unable to parse ${configFile}\n` + err.toString());
   }
