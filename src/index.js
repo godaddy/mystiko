@@ -271,7 +271,7 @@ function validateSchema (config) {
       region: {type: 'string'},
       secrets: secretsArraySchema
     },
-    required: ['region', 'secrets'],
+    required: ['secrets'],
     additionalProperties: false
   };
 
