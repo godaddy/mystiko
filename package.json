@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/godaddy/mystiko#readme",
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.8.0",
+    "@aws-sdk/client-secrets-manager": "^3.118.1",
     "ajv": "^6.12.6",
     "chalk": "^4.1.0"
   },
