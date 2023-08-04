@@ -65,7 +65,3 @@ Depending on your `.mystiko.json` configuration, your secrets will now be stored
 ## Tests
 
 Run tests with `npm run test`. When adding a new feature, make sure the code coverage does not go down.
-
-## Questions?
-
-Slack: https://godaddy-oss.slack.com/
